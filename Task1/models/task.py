@@ -1,58 +1,37 @@
+from __future__ import annotations
 from datetime import datetime, date
 
 class BorrowRecord:
-    def __init__(self, bid, borrower_name, student_id, admin_name, equipment_name, quantity, return_date):
-        self.__bid = bid
-        self.__borrower_name = borrower_name
-        self.__student_id = student_id
-        self.__admin_name = admin_name
-        self.__equipment_name = equipment_name.strip()
-        self.__quantity = int(quantity)
-        self.__return_date = return_date
-        self.__borrow_date = date.today().strftime("%Y-%m-%d")
-        self.__returned = False
 
-    def get_id(self):
-        return self.__bid
+    def __init__(self, id: str, borrower_name: str, student_id: str, admin_name: str,
+                 equipment_name: str, quantity: int, return_date: str,
+                 borrow_date: str = None, returned: bool = False):
+        self.id = id
+        self.borrower_name = borrower_name
+        self.student_id = student_id
+        self.admin_name = admin_name
+        self.equipment_name = equipment_name.strip()
+        self.quantity = int(quantity)
+        self.return_date = return_date
+        self.borrow_date = borrow_date or date.today().strftime("%Y-%m-%d")
+        self.returned = returned
 
-    def get_borrower_name(self):
-        return self.__borrower_name
+    def mark_returned(self) -> None:
+        self.returned = True
 
-    def get_student_id(self):
-        return self.__student_id
-
-    def get_admin_name(self):
-        return self.__admin_name
-
-    def get_equipment_name(self):
-        return self.__equipment_name
-
-    def get_quantity(self):
-        return self.__quantity
-
-    def get_return_date(self):
-        return self.__return_date
-
-    def get_borrow_date(self):
-        return self.__borrow_date
-
-    def is_returned(self):
-        return self.__returned
-
-    def mark_returned(self):
-        self.__returned = True
-
-    def display(self):
-        status = " [已歸還]" if self.__returned else ""
-        overdue = ""
+    def is_overdue(self) -> bool:
         try:
-            ret_date = datetime.strptime(self.__return_date, "%Y-%m-%d").date()
-            if ret_date < date.today() and not self.__returned:
-                overdue = " [逾期]"
-        except:
-            pass
+            ret_date = datetime.strptime(self.return_date, "%Y-%m-%d").date()
+            return ret_date < date.today() and not self.returned
+        except ValueError:
+            return False
 
-        return (f"{self.__equipment_name} (ID: {self.__bid}) | "
-                f"借用人: {self.__borrower_name} ({self.__student_id}) | "
-                f"管理員: {self.__admin_name} | 數量: {self.__quantity} | "
-                f"借出: {self.__borrow_date} | 歸還期限: {self.__return_date}{overdue}{status}")
+    def __str__(self) -> str:
+        status = " [已歸還]" if self.returned else ""
+        overdue = " [逾期]" if self.is_overdue() else ""
+        return (
+            f"{self.equipment_name} (ID: {self.id}) | "
+            f"借用人: {self.borrower_name} ({self.student_id}) | "
+            f"管理員: {self.admin_name} | 數量: {self.quantity} | "
+            f"借出: {self.borrow_date} | 歸還期限: {self.return_date}{overdue}{status}"
+        )

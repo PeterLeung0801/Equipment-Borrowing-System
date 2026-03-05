@@ -2,50 +2,41 @@ import json
 from models.task import BorrowRecord
 
 class FileHandler:
-    def __init__(self, file_name):
+    def __init__(self, file_name: str):
         self.file_name = file_name
 
-    def load(self):
+    def load(self) -> list[BorrowRecord]:
         try:
-            with open(self.file_name, 'r') as f:
-                data = json.load(f)
+            with open(self.file_name, 'r', encoding='utf-8') as f:
+                raw = json.load(f)
             records = []
-            for item in data:
-                record = BorrowRecord(
-                    item['id'],
-                    item['borrower_name'],
-                    item['student_id'],
-                    item['admin_name'],
-                    item['equipment_name'],
-                    item['quantity'],
-                    item['return_date']
-                )
-                if item.get('returned', False):
-                    record.mark_returned()
+            for item in raw:
+                record = BorrowRecord(**item)
                 records.append(record)
             return records
         except FileNotFoundError:
             return []
         except Exception as e:
-            print(f"讀取借用記錄失敗: {e}")
+            print("Failed to load borrow records:", e)
             return []
 
-    def save(self, records):
-        data = []
-        for r in records:
-            item = {
-                'id': r.get_id(),
-                'borrower_name': r.get_borrower_name(),
-                'student_id': r.get_student_id(),
-                'admin_name': r.get_admin_name(),
-                'equipment_name': r.get_equipment_name(),
-                'quantity': r.get_quantity(),
-                'return_date': r.get_return_date(),
-                'returned': r.is_returned()
-            }
-            data.append(item)
+    def save(self, records: list[BorrowRecord]) -> None:
         try:
-            with open(self.file_name, 'w') as f:
+            with open(self.file_name, 'w', encoding='utf-8') as f:
+                data = []
+                for r in records:
+                    item = {
+                        'id': r.id,
+                        'borrower_name': r.borrower_name,
+                        'student_id': r.student_id,
+                        'admin_name': r.admin_name,
+                        'equipment_name': r.equipment_name,
+                        'quantity': r.quantity,
+                        'return_date': r.return_date,
+                        'borrow_date': r.borrow_date,
+                        'returned': r.returned
+                    }
+                    data.append(item)
                 json.dump(data, f, indent=4)
         except Exception as e:
-            print(f"儲存借用記錄失敗: {e}")
+            print("Failed to save borrow records:", e)

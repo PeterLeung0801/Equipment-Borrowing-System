@@ -1,53 +1,20 @@
-# Task 2 – Self Study on Heap and Heap Sort
+# Task 2 – Heap and Heap Sort
 
-## 1. Data Structure: Max Heap
+## Max Heap
 
-A heap is a complete binary tree that satisfies the heap property.
+A complete binary tree where parent >= children.
 
-In a Max Heap:
-The value of each parent node is greater than or equal to its children.
+Operations: insert, extract_max, build_heap.
 
-### Abstract Data Type (ADT)
+Time: O(log n) for insert/extract, O(n) for build.
 
-Operations supported:
-- insert(value)
-- extract_max()
-- build_heap()
+## Heap Sort
 
-### Time Complexity
+Build heap, extract max repeatedly, reverse for ascending.
 
-- insert(): O(log n)
-- extract_max(): O(log n)
-- build_heap(): O(n)
+Time: O(n log n)
 
-### Applications
-
-- Priority queue implementation
-- Task scheduling systems
-- Graph algorithms
-
----
-
-## 2. Algorithm: Heap Sort
-
-Heap Sort is a comparison-based sorting algorithm built on the Heap data structure.
-
-### Procedure
-
-1. Insert all elements into a Max Heap.
-2. Repeatedly extract the maximum element.
-3. Reverse the extracted sequence to obtain ascending order.
-
-### Time Complexity
-
-- Best Case: O(n log n)
-- Worst Case: O(n log n)
-- Space Complexity: O(1)
-
-### Example
-
-Input:
-[4, 10, 3, 5, 1]
+Run: `python Task2/heap_sort.py`
 
 Output:
 [1, 3, 4, 5, 10]

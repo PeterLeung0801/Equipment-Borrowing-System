@@ -1,56 +1,32 @@
-# Equipment Borrowing Management System
+# Equipment Borrowing System
 
 **Author**: Leung Kam Chung Peter  
-**Course**: COMP8090SEF – Data Structures and Algorithms  
-**Pre-submission Version**
+**Course**: COMP8090SEF  
 
----
+This repo has two tasks:
 
-## Project Overview
+- Task 1: OOP app for borrowing equipment
+- Task 2: Heap and heap sort study
 
-This repository contains two independent tasks:
+## Task 1
 
-- **Task 1** – Equipment Borrowing Management System (OOP-based application)
-- **Task 2** – Self-study on Heap Data Structure and Heap Sort Algorithm
+A system to manage equipment borrowing in labs.
 
-This project is newly developed for COMP8090SEF and is not based on any previous coursework submission.
-
----
-
-## Task 1 – OOP-based Application Development
-
-### Problem Definition
-
-University laboratories and departments often face challenges in tracking who borrows equipment, when it is due back, and whether items are overdue. Without a proper system, equipment may be lost, returned late, or over-borrowed.
-
-This system provides a structured way to record, monitor, and manage equipment borrowing with clear alerts and statistics.
-
-### Key Features
-
-- Add new borrowing record (auto ID generation)
+Features:
+- Add borrow records
 - Mark as returned
-- Delete record
-- List all records sorted by return date
-- Statistics & alerts (total borrowed quantity, overdue, soon due)
-- Persistent JSON storage
+- Delete records
+- Show sorted list
+- Stats and alerts
+- Saves to JSON
 
-### OOP Concepts Demonstrated
+Run: `python Task1/main.py` or `python Task1/gui.py`
 
-- **Encapsulation**: Private attributes (`__bid`, `__borrower_name`, `__student_id`, etc.) with public getter methods to control access and ensure data integrity.
-- **Modular Programming**: Clear separation of concerns using packages/folders (`models/`, `core/`) and separate files for data models, business logic, file handling, and user interfaces.
-- **Composition**: The `BorrowManager` class composes and manages a collection of `BorrowRecord` objects, demonstrating "has-a" relationships.
-- **Single Responsibility Principle**: Each class has a focused responsibility (e.g., `BorrowRecord` handles individual record data, `FileHandler` handles persistence, `BorrowManager` handles business operations).
-- **Data Abstraction**: Users interact with high-level methods (e.g., `add_record`, `mark_returned`) without needing to know internal implementation details.
+## Task 2
 
-### How to Run Task 1
+Heap data structure and heap sort algorithm.
 
-- GUI Version  
-  `python Task1/gui.py`
-
-- Console Version  
-  `python Task1/main.py`
-
-Data is stored in `borrows.json` in the Task1 folder.
+Run: `python Task2/heap_sort.py`
 
 ---
 

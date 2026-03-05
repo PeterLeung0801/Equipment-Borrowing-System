@@ -1,75 +1,66 @@
+from __future__ import annotations
 from datetime import date, datetime
-from collections import defaultdict
+import itertools
+from typing import List
 
 class BorrowManager:
+
     def __init__(self):
-        self.records = []
-        self.next_id_num = 1
+        self.records: List = []
+        self._id_counter = itertools.count(1)
 
-    def _generate_id(self):
-        while True:
-            bid = f"B{self.next_id_num:03d}"
-            if not any(r.get_id() == bid for r in self.records):
-                self.next_id_num += 1
-                return bid
-            self.next_id_num += 1
+    def generate_id(self) -> str: # simple sequential ID, no need to scan existing records
+        return f"B{next(self._id_counter):03d}"
 
-    def add_record(self, record):
+    # CRUD helpers
+    def add(self, record) -> None:
         self.records.append(record)
 
-    def find_record(self, bid):
-        for r in self.records:
-            if r.get_id() == bid:
-                return r
-        return None
+    def find(self, bid: str):
+        return next((r for r in self.records if r.id == bid), None)
 
-    def mark_returned(self, bid):
-        record = self.find_record(bid)
-        if record:
-            record.mark_returned()
+    def mark_returned(self, bid: str) -> bool:
+        rec = self.find(bid)
+        if rec:
+            rec.mark_returned()
             return True
         return False
 
-    def delete_record(self, bid):
-        record = self.find_record(bid)
-        if record:
-            self.records.remove(record)
+    def delete(self, bid: str) -> bool:
+        rec = self.find(bid)
+        if rec:
+            self.records.remove(rec)
             return True
         return False
 
-    def get_all_records(self):
-        return self.records
+    def all(self):
+        return list(self.records)  # return copy if needed
 
-    def get_records_by_return_date(self):
+    def sorted_by_return(self):
         return sorted(
             self.records,
-            key=lambda r: datetime.strptime(r.get_return_date(), "%Y-%m-%d")
+            key=lambda r: datetime.strptime(r.return_date, "%Y-%m-%d"),
         )
 
-    def get_stats(self):
+    def stats(self):
         if not self.records:
             return [], [], []
 
-        total_borrowed = 0
+        today = date.today()
+        total = sum(r.quantity for r in self.records if not r.returned)
+
         upcoming = []
         overdue = []
-
-        today = date.today()
-
         for r in self.records:
-            if not r.is_returned():
-                total_borrowed += r.get_quantity()
+            if r.is_overdue:
+                overdue.append(r)
+            else:
+                try:
+                    rd = datetime.strptime(r.return_date, "%Y-%m-%d").date()
+                    days = (rd - today).days
+                    if 0 <= days <= 3 and not r.returned:
+                        upcoming.append(r)
+                except ValueError:
+                    pass
 
-            try:
-                ret_date = datetime.strptime(r.get_return_date(), "%Y-%m-%d").date()
-                days_left = (ret_date - today).days
-                if days_left < 0 and not r.is_returned():
-                    overdue.append(r)
-                elif 0 <= days_left <= 3 and not r.is_returned():
-                    upcoming.append(r)
-            except:
-                pass
-
-        borrow_lines = [f"目前總借出數量：{total_borrowed} 件"]
-
-        return borrow_lines, upcoming, overdue
+        return [f"目前總借出數量：{total} 件"], upcoming, overdue

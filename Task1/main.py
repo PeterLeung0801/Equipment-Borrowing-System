@@ -1,113 +1,109 @@
-from models.task import BorrowRecord
-from core.task_manager import BorrowManager
-from core.file_handler import FileHandler
 from datetime import datetime, timedelta, date
 
+from core.file_handler import FileHandler
+from core.task_manager import BorrowManager
+from models.task import BorrowRecord
+
+FILE_NAME = "borrows.json"
+
+
+def prompt(text: str) -> str:
+    # Wraps :func:`input` to strip whitespace.
+    # Keeps the main loop clean by avoiding repeated ``.strip()`` calls.
+    return input(text).strip()
+
+
+def list_menu() -> None:
+    # Display the main menu options in the terminal.
+    print("\n=== 設備借用管理系統 (Console) ===")
+    print("1. 新增")
+    print("2. 標記歸還")
+    print("3. 刪除")
+    print("4. 顯示紀錄")
+    print("5. 統計")
+    print("6. 存檔並離開")
+
+
+def validate_return_date(date_str: str) -> bool:
+    # Check that the return date string is in YYYY‑MM‑DD format and within 30 days of today.
+    try:
+        rd = datetime.strptime(date_str, "%Y-%m-%d").date()
+        today = date.today()
+        return today <= rd <= today + timedelta(days=30)
+    except ValueError:
+        return False
+
+
+def add_entry(manager: BorrowManager) -> None:
+    # Collect data from the user and add a new record.
+    data = {
+        "borrower_name": prompt("借用人: "),
+        "student_id": prompt("學生號: "),
+        "admin_name": prompt("管理員: "),
+        "equipment_name": prompt("設備: "),
+        "quantity": prompt("數量: "),
+        "return_date": prompt("歸還日(YYYY-MM-DD): "),
+    }
+
+    if not all(data.values()):
+        print("欄位不可空白")
+        return
+
+    if not data["quantity"].isdigit() or int(data["quantity"]) <= 0:
+        print("數量要正整數")
+        return
+
+    if not validate_return_date(data["return_date"]):
+        print("日期格式或範圍錯誤")
+        return
+
+    bid = manager.generate_id()
+    rec = BorrowRecord(bid, **data)
+    manager.add(rec)
+    print("新增好了", bid)
+
+
 def main():
-    FILE_NAME = "borrows.json"
-    file_handler = FileHandler(FILE_NAME)
-    manager = BorrowManager()
+    fh = FileHandler(FILE_NAME)
+    mgr = BorrowManager()
 
-    loaded_records = file_handler.load()
-    for record in loaded_records:
-        manager.add_record(record)
+    for r in fh.load():
+        mgr.add(r)
 
-    if loaded_records:
-        max_num = max(int(r.get_id()[1:]) for r in loaded_records if r.get_id().startswith("B"))
-        manager.next_id_num = max_num + 1
+    # if file had ids, bump counter
+    if mgr.records:
+        last = max(int(r.id[1:]) for r in mgr.records if r.id.startswith("B"))
+        mgr._id_counter = iter(range(last + 1, 9999))
 
     while True:
-        print("\n=== 設備借用管理系統 (Console) ===")
-        print("1. 新增借用記錄")
-        print("2. 標記已歸還")
-        print("3. 刪除記錄")
-        print("4. 顯示所有借用記錄（按歸還日期排序）")
-        print("5. 顯示統計與警示")
-        print("6. 儲存並退出")
-
-        choice = input("\n請輸入選項 (1-6): ").strip()
-
+        list_menu()
+        choice = prompt("選項: ")
         if choice == "1":
-            borrower_name = input("借用人姓名: ").strip()
-            student_id = input("借用人學生編號: ").strip()
-            admin_name = input("設備管理員姓名: ").strip()
-            equipment_name = input("設備名稱: ").strip()
-            quantity_str = input("借用數量: ").strip()
-            return_date_str = input("歸還日期 (YYYY-MM-DD，最多30天): ").strip()
-
-            if not all([borrower_name, student_id, admin_name, equipment_name, quantity_str, return_date_str]):
-                print("所有欄位皆為必填！")
-                continue
-
-            try:
-                quantity = int(quantity_str)
-                if quantity <= 0:
-                    raise ValueError
-                return_date = datetime.strptime(return_date_str, "%Y-%m-%d").date()
-                today = date.today()
-                max_date = today + timedelta(days=30)
-                if return_date > max_date:
-                    print("歸還日期最多只能是今天起 30 天內！")
-                    continue
-                if return_date < today:
-                    print("歸還日期不能早於今天！")
-                    continue
-            except ValueError:
-                print("數量必須是正整數，日期格式必須是 YYYY-MM-DD")
-                continue
-
-            bid = manager._generate_id()
-            record = BorrowRecord(bid, borrower_name, student_id, admin_name, equipment_name, quantity, return_date_str)
-            manager.add_record(record)
-            print(f"借用記錄新增成功！編號：{bid}")
-
+            add_entry(mgr)
         elif choice == "2":
-            bid = input("輸入要標記歸還的借用編號 (如 B001): ").strip()
-            if manager.mark_returned(bid):
-                print(f"記錄 {bid} 已標記為已歸還")
-            else:
-                print("找不到該記錄")
-
+            bid = prompt("哪個編號? ")
+            print("歸還" if mgr.mark_returned(bid) else "沒找到")
         elif choice == "3":
-            bid = input("輸入要刪除的借用編號 (如 B001): ").strip()
-            if manager.delete_record(bid):
-                print(f"記錄 {bid} 已刪除")
-            else:
-                print("找不到該記錄")
-
+            bid = prompt("要刪除? ")
+            print("刪掉了" if mgr.delete(bid) else "沒找到")
         elif choice == "4":
-            records = manager.get_records_by_return_date()
-            if not records:
-                print("目前無借用記錄")
-                continue
-            print("\n=== 所有借用記錄（按歸還日期排序） ===")
-            for r in records:
-                print(r.display())
-
+            for r in mgr.sorted_by_return():
+                print(r)
         elif choice == "5":
-            borrow_lines, upcoming, overdue = manager.get_stats()
-            print("\n=== 統計與警示 ===")
-            if borrow_lines:
-                for line in borrow_lines:
-                    print(line)
-            if overdue:
-                print("\n逾期未還：")
-                for r in overdue:
-                    print("  " + r.display())
-            if upcoming:
-                print("\n即將到期（3天內）：")
-                for r in upcoming:
-                    print("  " + r.display())
-            if not (borrow_lines or overdue or upcoming):
-                print("目前無借用記錄或警示")
-
+            lines, up, od = mgr.stats()
+            print(*lines, sep="\n")
+            if od:
+                print("逾期:")
+                print(*od, sep="\n")
+            if up:
+                print("即將到期:")
+                print(*up, sep="\n")
         elif choice == "6":
-            file_handler.save(manager.get_all_records())
-            print("已儲存所有記錄，再見！")
+            fh.save(mgr.all())
             break
-
         else:
-            print("無效選項，請重新輸入")
+            print("再輸入一次")
+
 
 if __name__ == "__main__":
     main()

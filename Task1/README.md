@@ -1,42 +1,52 @@
-# Task 1 – Equipment Borrowing Management System
+# Task 1 – Equipment Borrowing System
 
-## Description
+A simple app to manage borrowing equipment.
 
-This system is designed to help laboratories, departments, or university facilities manage the borrowing of equipment (such as oscilloscopes, 3D printers, projectors, tools, etc.).
+Features:
+- Add records
+- Mark returned
+- Delete
+- List sorted by date
+- Stats
+- JSON save/load
 
-It allows administrators to record borrowing details, track return dates, mark items as returned, and receive alerts for overdue or soon-due items.
+OOP: classes for records, manager, file handler.
 
-## Core Functionalities
+Run: `python main.py` or `python gui.py`
+  are public, and there are methods for marking a record returned and
+  checking overdue status.  The `__str__` method produces the textual
+  representation used by the interfaces.
 
-- Add new borrowing record (auto-generated ID: B001, B002, ...)
-- Mark record as returned
-- Delete borrowing record
-- Display all records sorted by return date
-- Show statistics and alerts (total borrowed quantity, overdue items, items due within 3 days)
-- Persistent storage using JSON (auto-load on startup, save on exit)
+- `core/task_manager.py` : a lightweight in-memory repository.  It
+  generates sequential IDs, tracks a list of records, and provides
+  helper methods for querying, sorting, deleting, and gathering
+  statistics (total quantity, upcoming due, overdue).
 
-## Input Fields
+- `core/file_handler.py` : handles loading and saving the record list
+  to `borrows.json` using the `json` module.  Conversion between
+  dictionaries and dataclass instances is automatic using
+  `dataclasses.asdict` and keyword unpacking (`BorrowRecord(**item)`).
 
-- Borrower Name (required)
-- Student ID (required)
-- Equipment Administrator Name (required)
-- Equipment Name (required)
-- Borrow Quantity (positive integer, required)
-- Return Date (YYYY-MM-DD format, maximum 30 days from today, required)
+- `main.py` : a simple command‑line program that displays a numbered
+  menu, reads user input, validates it, and calls the manager/file
+  handler accordingly.  Helper functions keep the loop short and
+  readable.
 
-## System Constraints
+- `gui.py` : builds a Tkinter window with entry fields, buttons, and a
+  listbox.  Event handlers call the same manager/file handler APIs
+  used by the console version, so logic is shared.
 
-- Return date must be after today and no later than 30 days from the borrow date
-- All fields are mandatory
-- Overdue items are automatically flagged in display and statistics
+- `borrows.json` : runtime data file.  You can inspect it manually; it
+  contains a JSON array of objects corresponding to `BorrowRecord`
+  fields.
 
-## OOP Design Demonstrated
 
-- **Encapsulation**: Private attributes with getter methods in `BorrowRecord`
-- **Modular Programming**: Separation into `models/`, `core/`, `main.py`, and `gui.py`
-- **Composition**: `BorrowManager` manages a collection of `BorrowRecord` objects
-- **Data Persistence**: JSON-based save/load mechanism
+## How to Run
 
+- GUI version: `python Task1/gui.py`
+- Console version: `python Task1/main.py`
+
+Data is stored in `borrows.json` in the Task1 folder.
 ## How to Run
 
 - GUI version: `python Task1/gui.py`
