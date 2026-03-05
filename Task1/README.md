@@ -47,9 +47,3 @@ Run: `python main.py` or `python gui.py`
 - Console version: `python Task1/main.py`
 
 Data is stored in `borrows.json` in the Task1 folder.
-## How to Run
-
-- GUI version: `python Task1/gui.py`
-- Console version: `python Task1/main.py`
-
-Data is stored in `borrows.json` in the Task1 folder.
