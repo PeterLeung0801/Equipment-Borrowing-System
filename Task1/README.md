@@ -40,6 +40,17 @@ Run: `python main.py` or `python gui.py`
   contains a JSON array of objects corresponding to `BorrowRecord`
   fields.
 
+## Requirements
+
+Python 3.10 or above
+Standard Python libraries:
+  json
+  datetime
+  dataclasses
+  tkinter (for GUI)
+
+The console version only requires Python standard libraries.
+The GUI version requires Tkinter support.
 
 ## How to Run
 
