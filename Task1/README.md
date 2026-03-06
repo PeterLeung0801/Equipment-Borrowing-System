@@ -42,12 +42,12 @@ Run: `python main.py` or `python gui.py`
 
 ## Requirements
 
-Python 3.10 or above
-Standard Python libraries:
-  json
-  datetime
-  dataclasses
-  tkinter (for GUI)
+- Python 3.10 or above
+- Standard Python libraries:
+  - json
+  - datetime
+  - dataclasses
+  - tkinter (for GUI)
 
 The console version only requires Python standard libraries.
 The GUI version requires Tkinter support.
