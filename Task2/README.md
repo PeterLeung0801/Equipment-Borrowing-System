@@ -89,3 +89,8 @@ Sample output (your numbers will vary):
 
 Original: [57, 12, 84, 33, 45]
 Sorted: [12, 33, 45, 57, 84]
+
+### From initial to max heap
+
+<img width="898" height="665" alt="image" src="https://github.com/user-attachments/assets/467dbc86-f12b-4a93-8f12-73a0115f3e2f" />
+
