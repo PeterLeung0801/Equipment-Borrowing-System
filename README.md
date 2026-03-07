@@ -8,6 +8,18 @@ This repo has two tasks:
 - Task 1: OOP app for borrowing equipment
 - Task 2: Heap and heap sort study
 
+## Requirements
+
+- Python 3.10 or above
+- Standard Python libraries:
+  - json
+  - datetime
+  - dataclasses
+  - tkinter (for GUI)
+
+The console version only requires Python standard libraries.
+The GUI version requires Tkinter support.
+
 ## Task 1
 
 A system to manage equipment borrowing in labs.
